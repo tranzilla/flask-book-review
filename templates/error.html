@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Error
+{% endblock %}
+
+{% block body %}
+    <h1>Error</h1>
+
+    <p>{{ message }}</p>
+
+    <a href="{{ url_for('index') }}" class="btn btn-info" role="button">Back to Login</a>
+{% endblock %}
