@@ -26,14 +26,14 @@ def index():
     #display form for Logging In
     return render_template("index.html")
 
-#Sucess or Failure Log In
+#Process data from Login Form accepting POST method
 @app.route("/login", methods=["POST"])
 def login():
     # Get information from user on the form
     username = request.form.get("username")
     password = request.form.get("password")
 
-    # Make sure username and password exists
+    # Make sure username AND password exists
     if db.execute("SELECT * FROM logins WHERE username = :username AND password = :password", {"username":username, "password":password}).rowcount != 0:
         return render_template("success.html", username=username, message="You are currently logged in")
     else:
