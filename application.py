@@ -43,7 +43,7 @@ def login():
         elif not password:
             return render_template("error.html", message="Please provide password")
 
-        #select the username that the user input in the database
+        #find the username in the database
         rows = db.execute("SELECT * FROM logins WHERE username = :username", {"username":username})
         result = rows.fetchone()
 
@@ -58,6 +58,7 @@ def login():
         return render_template("success.html", message="You have sucessfully logged in")
 
     else:
+        #return user to the login page
         return render_template("index.html")
 
 
@@ -66,7 +67,6 @@ def login():
         return render_template("success.html", username=username, message="You are currently logged in")
     else:
         return render_template("error.html", message="Invalid Username or Password")
-
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -82,15 +82,20 @@ def register():
     if request.method == "POST":
         # Check if username already exist
         username_check = db.execute("SELECT * FROM logins WHERE username = :username", {"username": username}).fetchone()
+
         #if username exists display error
         if username_check:
             return render_template("error.html", message="username already exist")
+
         # check if password was submitted
         elif not password:
             return render_template("error.html", message="please enter a password")
-        # Check if password the second time was submitted
+
+        # Check if password the password_confirm was submitted
         elif not password_confirm:
             return render_template("error.html", message="please re-enter the password")
+
+        # Check if password and password_confirm matches
         elif not password == password_confirm:
             return render_template("error.html", message="Passwords did not match!")
 
