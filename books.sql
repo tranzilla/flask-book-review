@@ -6,3 +6,9 @@ CREATE TABLE books (
   author VARCHAR NOT NULL,
   year INTEGER NOT NULL
 );
+
+CREATE TABLE logins (
+  id SERIAL PRIMARY KEY,
+  username VARCHAR UNIQUE NOT NULL,
+  hashed_password TEXT NOT NULL
+);

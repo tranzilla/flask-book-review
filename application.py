@@ -4,6 +4,7 @@ from flask import Flask, session, request, render_template
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
@@ -29,9 +30,29 @@ def index():
 #Process data from Login Form accepting POST method
 @app.route("/login", methods=["POST"])
 def login():
+    ''' Log User In '''
+
     # Get information from user on the form
     username = request.form.get("username")
     password = request.form.get("password")
+
+    #user reached route via POST method(through the form)
+    if request.method == "POST":
+
+        #if username was NOT submitted
+        if not username.form.get("username"):
+            return render_template("error.html", message="Please provide username")
+        #if password was NOT submitted
+        elif not password.form.get("password"):
+            return render_template("error.html", message="Please provide password")
+
+        #select the username that the user input in the database
+        rows = db.execute("SELECT * FROM logins WHERE username = :username", {"username":username})
+        result = rows.fetchone()
+
+        if result == NONE:
+            return render_template("error.html", message="Invalid username or password")
+
 
     # Make sure username AND password exists
     if db.execute("SELECT * FROM logins WHERE username = :username AND password = :password", {"username":username, "password":password}).rowcount != 0:
@@ -39,24 +60,45 @@ def login():
     else:
         return render_template("error.html", message="Invalid Username or Password")
 
-#Register Form
-@app.route("/register")
-def register():
-    # Display the register form
-    return render_template("register.html")
 
-#Sucess or Failure Form
-@app.route("/registerSubmit", methods=["POST"])
-def registerSubmit():
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    ''' Register a User '''
+
     #Get information from the register form
     username = request.form.get("username")
     password = request.form.get("password")
+    password_confirm = request.form.get("password_confirm")
 
-    # Check if username is already registered
-    if db.execute("SELECT * FROM logins WHERE username = :username", {"username": username}).rowcount ==0:
-        db.execute("INSERT INTO logins (username, password) VALUES (:username, :password)",
-        {"username": username, "password":password})
+    # If route via POST method
+    if request.method == "POST":
+        # Check if username already exist
+        username_check = db.execute("SELECT * FROM logins WHERE username = :username", {"username": username}).fetchone()
+        #if username exists display error
+        if username_check:
+            return render_template("error.html", message="username already exist")
+        # check if password was submitted
+        elif not password:
+            return render_template("error.html", message="please enter a password")
+        # Check if password the second time was submitted
+        elif not password_confirm:
+            return render_template("error.html", message="please re-enter the password")
+        elif not password == password_confirm:
+            return render_template("error.html", message="Passwords did not match!")
+
+        # Hash the password
+        hashedpassword = generate_password_hash(password)
+
+        # Insert into the database
+        db.execute("INSERT INTO logins (username, hashed_password) VALUES (:username, :hashedpassword)",
+        {"username": username, "hashedpassword":hashedpassword})
+
         db.commit()
+
         return render_template("success.html", username=username, message="You have sucessfully registered. Please Log In")
+
+    # Re-route user to the register.html page
     else:
-        return render_template("error.html", message="Username has already been taken")
+        return render_template("register.html")
