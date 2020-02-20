@@ -31,27 +31,34 @@ def index():
 @app.route("/login", methods=["POST"])
 def login():
     ''' Log User In '''
-
-    # Get information from user on the form
     username = request.form.get("username")
     password = request.form.get("password")
-
     #user reached route via POST method(through the form)
     if request.method == "POST":
 
-        #if username was NOT submitted
-        if not username.form.get("username"):
+        #if username or password was NOT submitted
+        if not username:
             return render_template("error.html", message="Please provide username")
         #if password was NOT submitted
-        elif not password.form.get("password"):
+        elif not password:
             return render_template("error.html", message="Please provide password")
 
         #select the username that the user input in the database
         rows = db.execute("SELECT * FROM logins WHERE username = :username", {"username":username})
         result = rows.fetchone()
 
-        if result == NONE:
+        #check_password_hash(hashed_password, password)
+        if result == None or not check_password_hash(result[2], password):
             return render_template("error.html", message="Invalid username or password")
+
+        '''If username and password matches'''
+        # Use session to remember who has logged in
+        session["id"] = result[0]
+        session["username"] = result[1]
+        return render_template("success.html", message="You have sucessfully logged in")
+
+    else:
+        return render_template("index.html")
 
 
     # Make sure username AND password exists
@@ -59,7 +66,6 @@ def login():
         return render_template("success.html", username=username, message="You are currently logged in")
     else:
         return render_template("error.html", message="Invalid Username or Password")
-
 
 
 
