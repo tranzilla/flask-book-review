@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, session, request, render_template
+from flask import Flask, session, request, render_template, redirect
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -64,10 +64,17 @@ def login():
 
     # Make sure username AND password exists
     if db.execute("SELECT * FROM logins WHERE username = :username AND password = :password", {"username":username, "password":password}).rowcount != 0:
+        #display book review page
         return render_template("success.html", username=username, message="You are currently logged in")
     else:
         return render_template("error.html", message="Invalid Username or Password")
 
+@app.route("/logout")
+def logout():
+    #clear the session
+    session.clear()
+    #redirect user to login page
+    return redirect("/")
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
