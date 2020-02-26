@@ -1,26 +1,17 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Flights
+    Success!
 {% endblock %}
 
 {% block body %}
-    <h1>Login</h1>
+    <h1>Search for a Book!</h1>
 
-    <form action="{{ url_for('login') }}" method="post">
-
-        <div class="form-group">
-          <input class="form-control" name="username" placeholder="Username">
-        </div>
-
-        <div class="form-group">
-            <input class="form-control" type="password" name="password" placeholder="Password">
-        </div>
-
-        <div class="form-group">
-            <button class="btn btn-primary">Submit</button>
-            <a href="{{ url_for('register') }}" class="btn btn-info" role="button">Register</a>
-        </div>
-
+    <form action="/search" method="post" class="form-inline my-2 my-lg-0">
+      <input class="form-control mr-sm-2" type="text" name ="book" placeholder="Search Books" aria-label="Search">
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
     </form>
+
+
+
 {% endblock %}

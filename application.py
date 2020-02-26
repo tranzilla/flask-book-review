@@ -1,10 +1,12 @@
-import os
+import os, json
 
-from flask import Flask, session, request, render_template, redirect
+from flask import Flask, session, request, render_template, redirect, jsonify
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from werkzeug.security import generate_password_hash, check_password_hash
+from helpers import login_required
+
 
 app = Flask(__name__)
 
@@ -23,13 +25,17 @@ db = scoped_session(sessionmaker(bind=engine))
 
 # Display Log In Form
 @app.route("/")
+@login_required
 def index():
     #display form for Logging In
     return render_template("index.html")
 
-#Process data from Login Form accepting POST method
-@app.route("/login", methods=["POST"])
+#Allow user to get to the login page with GET method and process data with the POST method
+@app.route("/login", methods=["GET", "POST"])
 def login():
+    #clear any session before logging in
+    session.clear()
+
     ''' Log User In '''
     username = request.form.get("username")
     password = request.form.get("password")
@@ -45,9 +51,10 @@ def login():
 
         #find the username in the database
         rows = db.execute("SELECT * FROM logins WHERE username = :username", {"username":username})
+        #get the username in the database
         result = rows.fetchone()
 
-        #check_password_hash(hashed_password, password)
+        #if no username or check_password_hash(hashed_password, password) is not valid
         if result == None or not check_password_hash(result[2], password):
             return render_template("error.html", message="Invalid username or password")
 
@@ -55,21 +62,15 @@ def login():
         # Use session to remember who has logged in
         session["id"] = result[0]
         session["username"] = result[1]
-        return render_template("success.html", message="You have sucessfully logged in")
+        return render_template("index.html")
 
     else:
         #return user to the login page
-        return render_template("index.html")
+        return render_template("login.html")
 
-
-    # Make sure username AND password exists
-    if db.execute("SELECT * FROM logins WHERE username = :username AND password = :password", {"username":username, "password":password}).rowcount != 0:
-        #display book review page
-        return render_template("success.html", username=username, message="You are currently logged in")
-    else:
-        return render_template("error.html", message="Invalid Username or Password")
 
 @app.route("/logout")
+@login_required
 def logout():
     #clear the session
     session.clear()
@@ -115,8 +116,22 @@ def register():
 
         db.commit()
 
-        return render_template("success.html", username=username, message="You have sucessfully registered. Please Log In")
+        #redirect user back to the login page
+        return redirect("/login")
 
     # Re-route user to the register.html page
     else:
         return render_template("register.html")
+
+@app.route("/search", methods=["GET", "POST"])
+def search():
+    if request.method == "POST":
+        book_query = "%" + request.form.get("book") + "%"
+        book_query = book_query.title()
+        books = db.execute("SELECT * FROM books WHERE title LIKE :title OR author LIKE :author OR isbn LIKE :isbn", {"title": book_query, "author": book_query, "isbn": book_query})
+        if books.rowcount == 0:
+            return render_template("error.html", message="Sorry, we were unable to find any matching book")
+        else:
+            return render_template("result.html", books=books)
+    else:
+        return redirect("/")
