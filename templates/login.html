@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Flights
+    Login
 {% endblock %}
 
 {% block body %}
@@ -19,7 +19,8 @@
 
         <div class="form-group">
             <button class="btn btn-primary">Submit</button>
-            <a href="{{ url_for('register') }}" class="btn btn-info" role="button">Register</a>
+            <a href="{{ url_for('register') }}">New to the site? Click here to register!</a>
+
         </div>
 
     </form>

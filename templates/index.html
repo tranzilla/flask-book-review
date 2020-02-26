@@ -1,13 +1,14 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Success!
+    Book Bandits
 {% endblock %}
 
 {% block body %}
-    <h1>Search for a Book!</h1>
+    <h1>Welcome to Book Bandits</h1>
+    <h2>Search Books</h2>
 
-    <form action="/search" method="post" class="form-inline my-2 my-lg-0">
+    <form action="{{ url_for('search') }}" method="post" class="form-inline my-2 my-lg-0">
       <input class="form-control mr-sm-2" type="text" name ="book" placeholder="Search Books" aria-label="Search">
       <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
     </form>
