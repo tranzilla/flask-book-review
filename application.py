@@ -123,8 +123,9 @@ def register():
     else:
         return render_template("register.html")
 
-@app.route("/search", methods=["GET", "POST"])
+@app.route("/search", methods=["POST"])
 def search():
+    ''' Allows user to search for books  '''
     if request.method == "POST":
         book_query = "%" + request.form.get("book") + "%"
         book_query = book_query.title()
@@ -135,3 +136,10 @@ def search():
             return render_template("result.html", books=books)
     else:
         return redirect("/")
+
+@app.route("/book/<isbn>", methods=["GET", "POST"])
+def book(isbn):
+    '''Display book details'''
+    row = db.execute("SELECT * FROM books where isbn = :isbn", {"isbn":isbn})
+    book_details = row.fetchall()
+    return render_template("book.html", book_details=book_details)

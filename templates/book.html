@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Book Details
+{% endblock %}
+
+{% block body %}
+    <h1>Book Details</h1>
+    {% for book_detail in book_details %}
+      <h2>{{book_detail.title}}</h2>
+      <h3>{{book_detail.author}}</h3>
+      <h4>{{book_detail.year}}</h4>
+    {% endfor %}
+
+
+
+{% endblock %}

@@ -5,10 +5,13 @@
 {% endblock %}
 
 {% block body %}
-    <h1>Opps, Something went wrong</h1>
+    <h1>Error</h1>
 
-    <p>{{ message }}</p>
-    <p>{{book_query}}</p>
+    <div class="row justify-content-center">
+      <p class="error-message">{{ message }}</p>
+    </div>
 
-    <a href="{{ url_for('index') }}" class="btn btn-info" role="button">Back to Login</a>
+    <div class="row justify-content-center">
+      <a href="{{ url_for('index') }}" class="btn btn-info" role="button">Back</a>
+    </div>
 {% endblock %}

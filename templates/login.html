@@ -9,18 +9,20 @@
 
     <form action="{{ url_for('login') }}" method="post">
 
-        <div class="form-group">
-          <input class="form-control" name="username" placeholder="Username">
+        <div class="form-group row justify-content-center">
+          <input class="form-control col-sm-4" name="username" placeholder="Username">
         </div>
 
-        <div class="form-group">
-            <input class="form-control" type="password" name="password" placeholder="Password">
+        <div class="form-group row justify-content-center">
+            <input class="form-control col-sm-4" type="password" name="password" placeholder="Password">
         </div>
 
-        <div class="form-group">
-            <button class="btn btn-primary">Submit</button>
+        <div class="form-group row justify-content-center">
+            <button class="btn btn-primary ">Login</button>
+        </div>
+
+        <div class= "form-group row justify-content-center">
             <a href="{{ url_for('register') }}">New to the site? Click here to register!</a>
-
         </div>
 
     </form>

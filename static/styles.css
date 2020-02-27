@@ -1,0 +1,25 @@
+h1 {
+  padding: 2rem;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+ h2, i {
+  justify-content: center;
+  text-align: center;
+}
+
+.form-group button{
+  margin-top: 1.25rem;
+}
+
+.form-group a{
+  text-decoration: none;
+  color: #000;
+}
+
+.error-message {
+  font-size: 24px;
+  color: #de290d;
+  padding-bottom: 1.5rem;
+}
