@@ -5,12 +5,27 @@
 {% endblock %}
 
 {% block body %}
-    <h1>Book Details</h1>
-    {% for book_detail in book_details %}
-      <h2>{{book_detail.title}}</h2>
-      <h3>{{book_detail.author}}</h3>
-      <h4>{{book_detail.year}}</h4>
-    {% endfor %}
+
+<h1>{{ book_detail.title }}</h1>
+<img src="http://covers.openlibrary.org/b/isbn/{{book_detail.isbn}}-M.jpg" width="130px">
+<a href="http://openlibrary.org/isbn/{{book_detail.isbn}}">Cover provided by Open Library</a>
+<div class='col'>
+     Author:<h2> {{ book_detail.author}}</h2>
+     Year:<h2> {{ book_detail.year}}</h2>
+     Isbn:<h2> {{ book_detail.isbn}}</h2>
+ </div>
+
+ <div class='col text-center bg-info my-2'>
+        <h2 class=''>Goodread.com rating: </h2>
+        <div class="col-sm">
+          {% for i in average_rating %}
+          <i class="fas fa-star"></i>
+          {% endfor %}
+        </div>
+        <h1>{{average_rating}}</h1>
+        <h5 class=''>Reviews received: </h5>
+        <h3>{{work_ratings_count}}</h3>
+    </div>
 
 
 

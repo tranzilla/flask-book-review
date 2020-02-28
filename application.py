@@ -7,6 +7,8 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from werkzeug.security import generate_password_hash, check_password_hash
 from helpers import login_required
 
+import requests
+
 
 app = Flask(__name__)
 
@@ -139,7 +141,13 @@ def search():
 
 @app.route("/book/<isbn>", methods=["GET", "POST"])
 def book(isbn):
-    '''Display book details'''
-    row = db.execute("SELECT * FROM books where isbn = :isbn", {"isbn":isbn})
-    book_details = row.fetchall()
-    return render_template("book.html", book_details=book_details)
+    '''Get book details for the book from the ISBN'''
+    book_detail = db.execute("SELECT * FROM books WHERE isbn = :isbn",{"isbn":isbn}).fetchone()
+
+    '''Get information from GoodReads API'''
+    res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "ulMNEp286MNXSAY7WZYVA", "isbns": isbn})
+    # Fetch from the dict called "books", 1st index called "average_rating"
+    average_rating = res.json()["books"][0]["average_rating"]
+    work_ratings_count=res.json()['books'][0]['work_ratings_count']
+
+    return render_template("book.html", book_detail=book_detail, average_rating=average_rating, work_ratings_count=work_ratings_count)
