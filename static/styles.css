@@ -4,6 +4,15 @@ h1 {
   text-align: center;
 }
 
+.display {
+  padding: 0rem;
+  text-align: left;
+}
+
+p {
+  margin-bottom: 0rem;
+}
+
  h2, i {
   justify-content: center;
   text-align: center;
@@ -22,4 +31,8 @@ h1 {
   font-size: 24px;
   color: #de290d;
   padding-bottom: 1.5rem;
+}
+
+h4 {
+  text-align: center;
 }

@@ -12,3 +12,12 @@ CREATE TABLE logins (
   username VARCHAR UNIQUE NOT NULL,
   hashed_password TEXT NOT NULL
 );
+
+
+CREATE TABLE reviews (
+  review_id SERIAL PRIMARY KEY,
+  book_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  review_text TEXT NOT NULL,
+  rating INTEGER NOT NULL
+);

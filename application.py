@@ -1,6 +1,6 @@
 import os, json
 
-from flask import Flask, session, request, render_template, redirect, jsonify
+from flask import Flask, session, request, render_template, redirect, jsonify, flash
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -141,13 +141,72 @@ def search():
 
 @app.route("/book/<isbn>", methods=["GET", "POST"])
 def book(isbn):
-    '''Get book details for the book from the ISBN'''
-    book_detail = db.execute("SELECT * FROM books WHERE isbn = :isbn",{"isbn":isbn}).fetchone()
+    if request.method == "POST":
+        #Grab the current user id
+        current_user = session['id']
 
-    '''Get information from GoodReads API'''
-    res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "ulMNEp286MNXSAY7WZYVA", "isbns": isbn})
-    # Fetch from the dict called "books", 1st index called "average_rating"
-    average_rating = res.json()["books"][0]["average_rating"]
-    work_ratings_count=res.json()['books'][0]['work_ratings_count']
+        #From the form, grab the ratings and review_text
+        rating = request.form.get("rating")
+        #convert rating into int data type for database
+        rating = int(rating)
+        comment = request.form.get("comment")
 
-    return render_template("book.html", book_detail=book_detail, average_rating=average_rating, work_ratings_count=work_ratings_count)
+        #Grab book_id from the database by isbn
+        book_detail = db.execute("SELECT * FROM books WHERE isbn = :isbn",
+                        {"isbn": isbn})
+
+        book_id = book_detail.fetchone()
+        book_id = book_id[0]
+
+         # Check user submission (only 1 user per book)
+        row = db.execute("SELECT * FROM reviews WHERE user_id = :user_id AND book_id = :book_id",
+                    {"user_id": current_user, "book_id": book_id})
+
+        if row.rowcount == 1:
+            flash("You've already submitted a review for this book!", "error")
+            #return user back to the book_detail page
+            return redirect("/book/" + isbn)
+
+        else:
+            #insert into reviews database
+            db.execute("INSERT INTO reviews (book_id, user_id, review_text, rating) VALUES (:book_id, :current_user, :comment, :rating)",
+            {"book_id": book_id, "current_user": current_user, "comment": comment, "rating" :rating})
+
+            #commit the db
+            db.commit()
+
+            #flash a message that the review was submitted
+            flash("Review submitted!", "info")
+
+            #redirect user back to the book details page
+            return redirect("/book/" + isbn)
+
+    #display the book details page
+    else:
+
+        '''Get book details for the book from the ISBN'''
+        book_detail = db.execute("SELECT * FROM books WHERE isbn = :isbn",
+                        {"isbn": isbn}).fetchone()
+
+        book_id = book_detail
+        book_id = book_id[0]
+
+        '''Get reviews details from users'''
+        review_detail = db.execute("SELECT logins.username, user_id, review_text, rating, book_id\
+                                    FROM logins\
+                                    INNER JOIN reviews\
+                                    ON logins.id = reviews.user_id\
+                                    WHERE book_id = :book_id",
+                                    {"book_id": book_id}).fetchone()
+
+        book_cover_api = requests.get("http://covers.openlibrary.org/b/isbn/{{book_detail.isbn}}-M.jpg")
+
+        '''Get information from GoodReads API'''
+        res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "ulMNEp286MNXSAY7WZYVA", "isbns": isbn})
+        # Fetch from the dict called "books", 1st index called "average_rating"
+        average_rating = res.json()["books"][0]["average_rating"]
+        work_ratings_count=res.json()['books'][0]['work_ratings_count']
+
+
+
+        return render_template("book.html", book_detail=book_detail, average_rating=average_rating, work_ratings_count=work_ratings_count, review_detail=review_detail)
